@@ -74,7 +74,7 @@ You can visit [DeepAR's offical site](https://www.deepar.ai/) to learn more.
 | ---------- | ----------------------------------- | ----------------------------- | ----------------- | ----------------- |
 | 3.4.2      | `>= 0.1.0` && `<= 0.10.2`           | `>= 0.64.2`                   | 21                | 11.0              |
 | 3.4.4      | `>= 0.10.3` && `<= 0.10.5`          | `>= 0.64.2`                   | 23                | 11.0              |
-| 5.2.0      | `>= 0.11.0`                         | `>= 0.64.2`                   | 23                | 11.0              |
+| 5.6.22      | `>= 0.12.0`                         | `>= 0.70.0`                   | 23                | 11.0              |
 
 ## Getting Started
 
@@ -104,13 +104,12 @@ yarn add react-native-deepar
 ```diff
 buildscript {
     ext {
-        buildToolsVersion = "29.0.3"
 -        minSdkVersion = 20
 -        compileSdkVersion = 30
 -        targetSdkVersion = 30
 +        minSdkVersion = 23
-+        compileSdkVersion = 31
-+        targetSdkVersion = 31
++        compileSdkVersion = 36
++        targetSdkVersion = 36
     }
 }
 ```
