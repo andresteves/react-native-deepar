@@ -268,12 +268,7 @@ public class RNTDeepAR extends FrameLayout implements AREventListener, SurfaceHo
       return;
     }
 
-    new android.os.Handler().postDelayed(
-      new Runnable() {
-        public void run() {
-          deepAr.takeScreenshot();
-        }
-      }, 100);
+    deepAr.takeScreenshot();
   }
 
   public void startRecording(ReadableMap settings) {
