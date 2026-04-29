@@ -4,6 +4,7 @@ import static androidx.core.app.ActivityCompat.requestPermissions;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -13,7 +14,6 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.Image;
 import android.os.Environment;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -31,9 +31,10 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ai.deepar.ar.ARErrorType;
 import ai.deepar.ar.AREventListener;
@@ -132,47 +133,63 @@ public class RNTDeepAR extends FrameLayout implements AREventListener, SurfaceHo
     }
   }
 
+  @SuppressLint("WrongThread")
   private String saveToInternalStorage(Bitmap bitmapImage) {
-    ContextWrapper cw = new ContextWrapper(getContext().getApplicationContext());
-    // path to /data/data/yourapp/app_data/imageDir
-    File cacheDir = cw.getCacheDir();
-    // Create imageDir
-    CharSequence now = DateFormat.format("yyyy_MM_dd_hh_mm_ss", new Date());
-    File tempPath = new File(cacheDir, "deepar_" + now + ".jpg");
-    if (!tempPath.exists()) {
-      try {
-        tempPath.createNewFile();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    } else {
-      tempPath.delete();
-      try {
-        tempPath.createNewFile();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
+    File cacheDir = getContext().getCacheDir();
+    String fileName = "deepar_" + System.currentTimeMillis() + ".jpg";
+    File tempPath = new File(cacheDir, fileName);
 
-    FileOutputStream outputStream = null;
-    try {
-      outputStream = new FileOutputStream(tempPath);
-      // Use the compress method on the BitMap object to write image to the OutputStream
-      int quality = 100; // 0 to 100
-      bitmapImage.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+    try (FileOutputStream outputStream = new FileOutputStream(tempPath)) {
+        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        return tempPath.getAbsolutePath();
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
-      try {
-        outputStream.flush();
-        outputStream.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      return ""; // Handle this null in your @ReactMethod!
     }
-
-    return tempPath.getAbsolutePath();
   }
+//  private String saveToInternalStorage(Bitmap bitmapImage) {
+//    ContextWrapper cw = new ContextWrapper(getContext().getApplicationContext());
+//    // path to /data/data/yourapp/app_data/imageDir
+//    File cacheDir = cw.getCacheDir();
+//    // Create imageDir
+//    CharSequence now = DateFormat.format("yyyy_MM_dd_hh_mm_ss", new Date());
+//    File tempPath = new File(cacheDir, "deepar_" + now + ".jpg");
+//    if (!tempPath.exists()) {
+//      try {
+//        tempPath.createNewFile();
+//      } catch (IOException e) {
+//        e.printStackTrace();
+//      }
+//    } else {
+//      tempPath.delete();
+//      try {
+//        tempPath.createNewFile();
+//      } catch (IOException e) {
+//        e.printStackTrace();
+//      }
+//    }
+//
+//    FileOutputStream outputStream = null;
+//    try {
+//      outputStream = new FileOutputStream(tempPath);
+//      // Use the compress method on the BitMap object to write image to the OutputStream
+//      int quality = 100; // 0 to 100
+//      bitmapImage.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    } finally {
+//      try {
+//        if (outputStream != null) {
+//          outputStream.flush();
+//          outputStream.close();
+//        }
+//      } catch (IOException e) {
+//        e.printStackTrace();
+//      }
+//    }
+//
+//    return tempPath.getAbsolutePath();
+//  }
 
   //
   // Methods
@@ -503,10 +520,18 @@ public class RNTDeepAR extends FrameLayout implements AREventListener, SurfaceHo
     if (bitmap == null) {
       return;
     }
-    String screenshotPath = saveToInternalStorage(bitmap);
-    if (!screenshotPath.isEmpty()) {
-      sendEvent("screenshotTaken", screenshotPath, null);
-    }
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    executor.execute(() -> {
+      // This now runs on a BACKGROUND thread
+      String screenshotPath = saveToInternalStorage(bitmap);
+
+      if (screenshotPath != null && !screenshotPath.isEmpty()) {
+        // IMPORTANT: Events sent to JS can usually be sent from background threads,
+        // but if your sendEvent method requires the UI thread, wrap ONLY the event call.
+        sendEvent("screenshotTaken", screenshotPath, null);
+      }
+    });
   }
 
   /**
