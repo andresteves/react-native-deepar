@@ -28,6 +28,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.facebook.react.uimanager.events.RCTModernEventEmitter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -120,17 +121,17 @@ public class RNTDeepAR extends FrameLayout implements AREventListener, SurfaceHo
 
   private void sendEvent(String key, String value, String value2) {
     final Context context = getContext();
-    if (context instanceof ReactContext) {
+    if (!(context instanceof ReactContext reactCtx)) return;
+
+    post(() -> {
       WritableMap event = new WritableNativeMap();
       event.putString("type", key);
-      event.putString("value", value);
-      if (value2 != null) {
-        event.putString("value2", value2);
-      }
-      ((ReactContext) context).getJSModule(RCTEventEmitter.class)
-        .receiveEvent(getId(),
-          "onEventSent", event);
-    }
+      if (value != null) event.putString("value", value);
+      if (value2 != null) event.putString("value2", value2);
+
+      reactCtx.getJSModule(RCTModernEventEmitter.class)
+        .receiveEvent(-1, getId(), "onEventSent", event);
+    });
   }
 
   @SuppressLint("WrongThread")

@@ -1,18 +1,18 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { View, Text, Image, Platform, Linking, StyleSheet } from 'react-native';
-import DeepARView, {
+import {
   IDeepARHandle,
   TextureSourceTypes,
   CameraPermissionRequestResult,
   Camera,
-  ErrorTypes,
   CameraPositions,
 } from 'react-native-deepar';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import { Button } from '../components';
-import { Config, Images, Effects, Computed, Enums } from '../constants';
+import { Config, Images, Effects } from '../constants';
 import Utils from '../utils';
+import React from 'react';
 
 const CameraScreen = ({ navigation }: { navigation: any }) => {
   const deepARRef = useRef<IDeepARHandle>(null);
@@ -22,7 +22,7 @@ const CameraScreen = ({ navigation }: { navigation: any }) => {
   const [isStatsEnabled, setIsStatsEnabled] = useState(false);
   const [currEffectIndex, setCurrEffectIndex] = useState(0);
   const [videoMode, setVideoMode] = useState(false);
-  const [isVideoRecording, setIsVideoRecording] = useState(false);
+  const [isVideoRecording] = useState(false);
   const [isVideoRecordingPaused, setIsVideoRecordingPaused] = useState(false);
   const [isFacePaintingStarted, setIsFacePaintingStarted] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(CameraPositions.FRONT);
@@ -291,12 +291,17 @@ const CameraScreen = ({ navigation }: { navigation: any }) => {
       return null;
     }
 
+    console.log('------ Bananas 4 --------');
+
     return (
-      <>
-        <DeepARView
+      <View style={{ flex: 1 }}>
+        {/* <DeepARView
           ref={deepARRef}
-          apiKey={Config.DEEPAR.API_KEY || ''}
+          apiKey={''}
           position={cameraPosition}
+          onInitialized={() => {
+            console.log(' ---- Init ---- ');
+          }}
           videoWarmup={false}
           onCameraSwitched={() => {
             setSwitchCameraInProgress(false);
@@ -332,11 +337,11 @@ const CameraScreen = ({ navigation }: { navigation: any }) => {
             width: Computed.SCREEN_WIDTH,
             height: '100%',
           }}
-        />
+        /> */}
         {renderPhotoViewButtons()}
         {renderVideoViewButtons()}
         {renderEffectName()}
-      </>
+      </View>
     );
   };
 
