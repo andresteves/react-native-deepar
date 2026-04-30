@@ -28,7 +28,6 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-import com.facebook.react.uimanager.events.RCTModernEventEmitter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -129,8 +128,8 @@ public class RNTDeepAR extends FrameLayout implements AREventListener, SurfaceHo
       if (value != null) event.putString("value", value);
       if (value2 != null) event.putString("value2", value2);
 
-      reactCtx.getJSModule(RCTModernEventEmitter.class)
-        .receiveEvent(-1, getId(), "onEventSent", event);
+      reactCtx.getJSModule(RCTEventEmitter.class)
+        .receiveEvent(getId(), "onEventSent", event);
     });
   }
 
