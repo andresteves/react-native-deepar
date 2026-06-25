@@ -24,6 +24,24 @@ RCT_EXPORT_VIEW_PROPERTY(onEventSent, RCTBubblingEventBlock)
   return [RNTDeepAR new];
 }
 
+RCT_EXPORT_METHOD(noEffect
+                  : (nonnull NSNumber *)reactTag andMaskPath
+                  : (NSString *)effect andSlot
+                  : (NSString *)slot) {
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager,
+                                      NSDictionary<NSNumber *, RNTDeepAR *>
+                                          *viewRegistry) {
+    RNTDeepAR *view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RNTDeepAR class]]) {
+      RCTLogError(
+          @"Invalid view returned from registry, expecting RNTDeepAR, got: %@",
+          view);
+    } else {
+      [view switchEffect:effect andSlot:slot];
+    }
+  }];
+}
+
 RCT_EXPORT_METHOD(switchEffect
                   : (nonnull NSNumber *)reactTag andMaskPath
                   : (NSString *)effect andSlot
