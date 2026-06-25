@@ -6,7 +6,7 @@
 
 @implementation RNTDeepARViewManager
 
-RCT_EXPORT_MODULE(RNTDeepARViewManager)
+RCT_EXPORT_MODULE()
 RCT_EXPORT_VIEW_PROPERTY(apiKey, NSString)
 RCT_EXPORT_VIEW_PROPERTY(cameraPosition, NSString)
 RCT_EXPORT_VIEW_PROPERTY(videoWarmup, NSString)
